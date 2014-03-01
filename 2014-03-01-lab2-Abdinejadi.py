@@ -60,7 +60,34 @@ def print_common_tag_ngrams(genre, n, rows, simplify_tags=True):
 			print "\t" + s[0] + " " + s[1] + " " + s[2] + (" " * (18-((len(s[0])+len(s[1])+len(s[2]))))) + "{0:.2f}%".format(round(frqdis.freq(s)*100,2)) +"\t\t"+"{0:.2f}%".format(round(acc_frq*100,2))
 		else:
 			print "Invalid ngrams! Please select n = 1,2,3"
-	
+
+def split_sents(sents):
+	return (sents[:500],sents[500:])
+
+def most_common_tag(tagged_sents):
+	frqdis = nltk.FreqDist([tag for sen in tagged_sents for (_w,tag) in sen])
+	return frqdis.max()
+
+def train_nltk_taggers(train_sents):
+	print "trained_nltk_taggers"
+	default_tagger = nltk.DefaultTagger(most_common_tag(train_sents))
+	default_tagger.tag(train_sents)
+	affix_tagger = nltk.AffixTagger(train_sents, backoff = default_tagger)
+	unigram_tagger = nltk.UnigramTagger(train_sents, backoff = affix_tagger)
+	bigram_tagger = nltk.BigramTagger(train_sents, backoff = unigram_tagger)
+	trigram_tagger = nltk.TrigramTagger(train_sents, backoff = bigram_tagger)
+	return (default_tagger, affix_tagger, unigram_tagger, bigram_tagger, trigram_tagger)
+
+def print_report_header(title, comment=""):
+    """I'm in desperate need of a docstring!"""
+    print ("%-20s Accuracy     Errors            %s" % (title, comment))
+    print 80 * "-"
+
+def print_report_line(title, accuracy, comment=""):
+    """Me too!"""
+    errors = 1.0 / (1.0 - accuracy)
+    print ("%-20s%7.2f%%    %4.1f words/error    %s" % (title, 100.0 * accuracy, errors, comment))
+
 
 
 def brown_tagged_sents(genre, simplify_tags=True):
@@ -72,7 +99,11 @@ Global
 '''
 if __name__ == "__main__":
 	print "test main function " + __file__
-	# print_brown_statistics(["fiction", "government", "news", "reviews"])
-	print_common_tag_ngrams("news", 2, 10)
+	# print_brown_statistics(["fiction", "government", "news", "reviews"]) # part1
+	# print_common_tag_ngrams("news", 2, 10) # part2
+
+	news_train, news_test = split_sents(brown_tagged_sents("news"))
+	train_nltk_taggers(news_train)
+	print most_common_tag(news_train)
 	# print_brown_statistics(["fiction"])
 	# print type(brown_tagged_sents("fiction", True))
