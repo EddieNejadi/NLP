@@ -88,7 +88,15 @@ def print_report_line(title, accuracy, comment=""):
     errors = 1.0 / (1.0 - accuracy)
     print ("%-20s%7.2f%%    %4.1f words/error    %s" % (title, 100.0 * accuracy, errors, comment))
 
-
+def print_nltk_taggers_table(genre):
+	train, _test = split_sents(brown_tagged_sents(genre))
+	taggers = train_nltk_taggers(train)
+	print_report_header(genre)
+	print_report_line("default", taggers[0].evaluate(train))
+	print_report_line("affix", taggers[1].evaluate(train))
+	print_report_line("unigram", taggers[2].evaluate(train))
+	print_report_line("bi-gram", taggers[3].evaluate(train))
+	print_report_line("tri-gram", taggers[4].evaluate(train))
 
 def brown_tagged_sents(genre, simplify_tags=True):
     """Returns the tagged sentences of the given Brown category."""
@@ -102,8 +110,9 @@ if __name__ == "__main__":
 	# print_brown_statistics(["fiction", "government", "news", "reviews"]) # part1
 	# print_common_tag_ngrams("news", 2, 10) # part2
 
-	news_train, news_test = split_sents(brown_tagged_sents("news"))
-	train_nltk_taggers(news_train)
-	print most_common_tag(news_train)
+	# news_train, news_test = split_sents(brown_tagged_sents("news"))
+	# train_nltk_taggers(news_train)
+	# print most_common_tag(news_train)
+	print_nltk_taggers_table("news")
 	# print_brown_statistics(["fiction"])
 	# print type(brown_tagged_sents("fiction", True))
