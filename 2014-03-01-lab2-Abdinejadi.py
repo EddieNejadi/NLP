@@ -140,6 +140,33 @@ def test_different_genres(genre, genres):
 
 	print ""
 
+def train_different_sizes(genre, portions):
+	print "\tTraining sentences\t\t\tAccuracy\tErrors\tTesting sentences"
+	print "--------------------------------------------------------------------------------" 
+	train, test = split_sents(brown_tagged_sents(genre))
+	for p in portions:
+		train_part = train[:int(len(train)*(p/100))]
+		bigram_tagger = train_bigram_tagger(train_part)
+		accuracy = bigram_tagger.evaluate(test)
+		errors =1.0 / (1.0 - accuracy)
+		print ("\tnews-train %s\t\t\t%4.2f%%\t\t%4.1f\tnews-test" % ("({}%)".format(p),100.0 * accuracy, errors))
+	print ""
+
+def compare_train_test_partitions(genre):
+	print "\tTraining sentences\t\t\tAccuracy\tErrors\t\tPartition"
+	print "--------------------------------------------------------------------------------" 
+	# train, test = split_sents(brown_tagged_sents(genre))
+	bts = brown_tagged_sents(genre)
+	bigram_tagger_first = train_bigram_tagger(bts[500:])
+	accuracy = bigram_tagger_first.evaluate(bts[:500])
+	errors =1.0 / (1.0 - accuracy)
+	print ("\tnews\t\t\t\t\t%4.2f%%\t\t%4.1f\ttest = news[:500], train = news[500:]" % (100.0 * accuracy, errors))
+	bigram_tagger_second = train_bigram_tagger(bts[:-500])
+	accuracy = bigram_tagger_second.evaluate(bts[-500:])
+	errors =1.0 / (1.0 - accuracy)
+	print ("\tnews\t\t\t\t\t%4.2f%%\t\t%4.1f\ttest = news[-500:], train = news[:-500]" % (100.0 * accuracy, errors))
+
+
 def print_compare_different_training_test_set():
 	print "== Part 3: Compare Different Training/Test Sets"
 	print ""
@@ -169,6 +196,8 @@ if __name__ == "__main__":
 	# print most_common_tag(news_train)
 	# print_nltk_taggers_table("news")
 	# test_on_training_set("news")
-	test_different_genres("news", ["fiction", "government", "news", "reviews"])
+	# test_different_genres("news", ["fiction", "government", "news", "reviews"])
+	# train_different_sizes("news", [100, 75, 50, 25])
+	compare_train_test_partitions("news")
 	# print_brown_statistics(["fiction"])
 	# print type(brown_tagged_sents("fiction", True))
